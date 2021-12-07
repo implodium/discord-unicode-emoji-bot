@@ -16,18 +16,17 @@ if (process.env.GUILD_ID) {
             Intents.FLAGS.GUILD_MEMBERS,
         ],
         classes: [
-            `${srcPath}/commands/*`
+            `${srcPath}/commands/*.js`
         ],
         silent: false,
         botGuilds: [
-
+            process.env.GUILD_ID
         ]
     })
 
     client.once('ready', async () => {
         await client.clearApplicationCommands()
         await client.initApplicationCommands()
-        await client.initApplicationPermissions()
         await client.initApplicationPermissions()
     })
 

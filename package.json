@@ -1,5 +1,5 @@
 {
-  "name": "discord-unicode-emoji-bot",
+  "name": "discord-unicode-bot",
   "version": "1.0.0",
   "description": "bot for unicode emoji commands",
   "main": "dist/indext.js",
