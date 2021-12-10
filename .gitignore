@@ -185,3 +185,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Environments
+
+.env.dev
+.env.prod
