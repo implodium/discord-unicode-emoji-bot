@@ -189,3 +189,5 @@ Temporary Items
 
 .env.dev
 .env.prod
+.gitsecret/keys/random_seed
+!*.secret
