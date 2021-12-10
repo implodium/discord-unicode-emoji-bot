@@ -3,7 +3,7 @@ import {CommandInteraction} from "discord.js";
 
 @Discord()
 @SlashGroup('emoji', 'prints out unicode emojis')
-export default abstract class UnicodeCommandCollection {
+export default abstract class EmojiCommand {
 
     @Slash('help')
     async help(interaction: CommandInteraction) {
