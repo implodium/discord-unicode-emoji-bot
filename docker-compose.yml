@@ -6,3 +6,5 @@ services:
     build: .
     env_file:
       - .env.prod
+    environment:
+      - NODE_ENV=production
