@@ -4,31 +4,31 @@ import figlet from 'figlet'
 
 
 enum Fonts {
-    "1Row" = "1Row",
-    "3-D" = "3-D",
-    "3D Diagonal" = "3D Diagonal",
+    "Star Wars" = "Star Wars",
+    "Sub-Zero" = "Sub-Zero",
+    "Weird" = "Weird",
+    "Univers" = "Univers",
+    "Speed" = "Speed",
+    "Puffy" = "Puffy",
+    "Nipples" = "Nipples",
+    "Larry 3D" = "Larry 3D",
+    "Isometric1" = "Isometric1",
+    "Impossible" = "Impossible",
     "3D-ASCII" = "3D-ASCII",
-    "3x5" = "3x5",
-    "4Max" = "4Max",
-    "5 Line Oblique" = "5 Line Oblique",
-    "AMC 3 Line" = "AMC 3 Line",
-    "AMC 3 Liv1" = "AMC 3 Liv1",
-    "AMC AAA01" = "AMC AAA01",
-    "AMC Neko" = "AMC Neko",
-    "AMC Razor" = "AMC Razor",
-    "AMC Razor2" = "AMC Razor2",
-    "AMC Slash" = "AMC Slash",
-    "AMC Slider" = "AMC Slider",
-    "AMC Thin" = "AMC Thin",
-    "AMC Tubes" = "AMC Tubes",
-    "AMC Untitled" = "AMC Untitled",
-    "ANSI Regular" = "ANSI Regular",
-    "ANSI Shadow" = "ANSI Shadow",
-    "ASCII New Roman" = "ASCII New Roman",
-    "Acrobatic" = "Acrobatic",
-    "Alligator" = "Alligator",
-    "Alligator2" = "Alligator2",
-    "Alpha" = "Alpha",
+    "Whimsy" = "Whimsy",
+    "Wet Letter" = "Wet Letter",
+    "Twisted" = "Twisted",
+    "Train" = "Train",
+    "Tombstone" = "Tombstone",
+    "THIS" = "THIS",
+    "Small Keyboard" = "Small Keyboard",
+    "Rammstein" = "Rammstein",
+    "Pyramid" = "Pyramid",
+    "Puzzle" = "Puzzle",
+    "Pebbles" = "Pebbles",
+    "Moscow" = "Moscow",
+    "Katakana" = "Katakana",
+    "JS Stick Letters" = "JS Stick Letters",
 }
 
 @Discord()
@@ -38,11 +38,11 @@ export default class TextCommand {
     async sendText(
 
         @SlashOption('text', {required: true})
-        text: string,
+            text: string,
 
         @SlashChoice(Fonts)
         @SlashOption('font', {required: false})
-        font: string,
+            font: string,
 
         interaction: CommandInteraction
     ) {
