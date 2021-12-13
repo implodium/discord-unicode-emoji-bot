@@ -1,4 +1,4 @@
-import {Discord, Slash, SlashChoice, SlashOption} from "discordx";
+import {Discord, Slash, SlashChoice, SlashGroup, SlashOption} from "discordx";
 import {CommandInteraction} from "discord.js";
 import figlet from 'figlet'
 
@@ -32,26 +32,48 @@ enum Fonts {
 }
 
 @Discord()
+@SlashGroup('text')
 export default class TextCommand {
 
-    @Slash('text', {description: 'sends text in ascii format'})
+    @Slash('write', {description: 'sends text in ascii format'})
     async sendText(
 
-        @SlashOption('text', {required: true})
+        @SlashOption('text', {
+            required: true,
+            description: "Text to convert to ascii art"
+        })
             text: string,
 
         @SlashChoice(Fonts)
-        @SlashOption('font', {required: false})
+        @SlashOption('font', {
+            required: false,
+            description: "Selecting a font from the drop down (limit 25)"
+        })
             font: string,
+
+        @SlashOption('free-font', {
+            required: false,
+            description: "Selecting a font from the full list. See `list-fonts`"
+        })
+            freeFont: string,
 
         interaction: CommandInteraction
     ) {
-        console.log(font)
+        if (font === undefined) {
+            font = freeFont;
+        }
+
+        const asciiText = await this.convertToAscii(text, font);
+        await interaction.reply(this.getCodeBlockWith(asciiText))
+    }
+
+    getCodeBlockWith(text: string) {
         let textBuilder = ''
         textBuilder += '```\n'
-        textBuilder += await this.convertToAscii(text, font)
+        textBuilder += text
         textBuilder += '\n```'
-        await interaction.reply(textBuilder)
+
+        return textBuilder
     }
 
     async convertToAscii(text: string, font: string | undefined): Promise<string> {
