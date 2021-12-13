@@ -1,6 +1,8 @@
-import {Discord, Slash, SlashChoice, SlashGroup, SlashOption} from "discordx";
-import {CommandInteraction} from "discord.js";
+import {ButtonComponent, Discord, Once, Slash, SlashChoice, SlashGroup, SlashOption} from "discordx";
+import {ButtonInteraction, CommandInteraction} from "discord.js";
 import figlet from 'figlet'
+import * as fs from "fs";
+import ListMessageBuilder from "../util/ListMessageBuilder.js";
 
 
 enum Fonts {
@@ -35,6 +37,9 @@ enum Fonts {
 @SlashGroup('text')
 export default class TextCommand {
 
+    fontFileLocation = "/resources/fonts.txt"
+    fonts?: Promise<string>
+
     @Slash('write', {description: 'sends text in ascii format'})
     async sendText(
 
@@ -53,7 +58,7 @@ export default class TextCommand {
 
         @SlashOption('free-font', {
             required: false,
-            description: "Selecting a font from the full list. See `list-fonts`"
+            description: "Selecting a font from the full list. See `/text list-fonts`"
         })
             freeFont: string,
 
@@ -65,6 +70,33 @@ export default class TextCommand {
 
         const asciiText = await this.convertToAscii(text, font);
         await interaction.reply(this.getCodeBlockWith(asciiText))
+    }
+
+    @Slash('list-fonts')
+    async listFonts(interaction: CommandInteraction) {
+        if (this.fonts) {
+            const resolvedFonts = (await this.fonts).split('\n');
+            const listBuilder = new ListMessageBuilder(resolvedFonts, 1)
+            const options = listBuilder.build()
+            console.log(options)
+            await interaction.reply(options)
+        } else {
+            throw Error('fonts missing')
+        }
+    }
+
+    @ButtonComponent('next')
+    async next(interaction: ButtonInteraction) {
+        const footer = interaction.message.embeds[0].footer
+
+        if (footer && this.fonts) {
+            const pageNo = footer.text.split(' ')[1];
+            const resolvedFonts = (await this.fonts).split('\n');
+            const builder = new ListMessageBuilder(resolvedFonts, parseInt(pageNo) + 1)
+            await interaction.update(builder.build())
+        } else {
+            throw new Error('last message or fonts not found')
+        }
     }
 
     getCodeBlockWith(text: string) {
@@ -104,6 +136,14 @@ export default class TextCommand {
         } else {
             return {}
         }
+    }
+
+    @Once("ready")
+    async readFonts(): Promise<void> {
+        this.fonts = fs.promises.readFile(
+            `${process.cwd() + this.fontFileLocation}`,
+            'utf-8'
+        );
     }
 
 }
