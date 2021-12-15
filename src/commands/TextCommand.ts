@@ -111,9 +111,7 @@ export default class TextCommand {
 
         if (footer && this.fonts) {
             const pageNo = await TextCommand.getPrevPage(footer)
-            console.log(pageNo)
             const resolvedFonts = (await this.fonts).split('\n');
-
 
             const builder = new ListMessageBuilder(
                 resolvedFonts,
