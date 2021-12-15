@@ -21,7 +21,7 @@ export default class ListMessageBuilder {
     private buildPage(): MessageEmbed {
         const messageEmbed = new MessageEmbed()
             .setTitle("Fonts")
-            .setFooter(`Page ${this.pageNo}`)
+            .setFooter(`Page ${this.pageNo}/${this.pages.length - 1}`)
 
         const fontPage = this.pages[this.pageNo];
         let description = ''

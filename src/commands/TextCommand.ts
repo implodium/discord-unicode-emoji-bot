@@ -1,5 +1,5 @@
 import {ButtonComponent, Discord, Once, Slash, SlashChoice, SlashGroup, SlashOption} from "discordx";
-import {ButtonInteraction, CommandInteraction} from "discord.js";
+import {ButtonInteraction, CommandInteraction, MessageEmbedFooter} from "discord.js";
 import figlet from 'figlet'
 import * as fs from "fs";
 import ListMessageBuilder from "../util/ListMessageBuilder.js";
@@ -90,13 +90,64 @@ export default class TextCommand {
         const footer = interaction.message.embeds[0].footer
 
         if (footer && this.fonts) {
-            const pageNo = footer.text.split(' ')[1];
+            const pageNo = await TextCommand.getNextPage(footer)
             const resolvedFonts = (await this.fonts).split('\n');
-            const builder = new ListMessageBuilder(resolvedFonts, parseInt(pageNo) + 1)
+
+
+            const builder = new ListMessageBuilder(
+                resolvedFonts,
+                pageNo
+            )
+
             await interaction.update(builder.build())
         } else {
             throw new Error('last message or fonts not found')
         }
+    }
+
+    @ButtonComponent('prev')
+    async prev(interaction: ButtonInteraction) {
+        const footer = interaction.message.embeds[0].footer
+
+        if (footer && this.fonts) {
+            const pageNo = await TextCommand.getPrevPage(footer)
+            console.log(pageNo)
+            const resolvedFonts = (await this.fonts).split('\n');
+
+
+            const builder = new ListMessageBuilder(
+                resolvedFonts,
+                pageNo
+            )
+
+            await interaction.update(builder.build())
+        } else {
+            throw new Error('last message or fonts not found')
+        }
+    }
+
+
+    private static async getNextPage(footer: MessageEmbedFooter) {
+        return TextCommand.getPageNo(footer, +1)
+    }
+
+    private static async getPrevPage(footer: MessageEmbedFooter) {
+        return TextCommand.getPageNo(footer, -1)
+    }
+
+    private static async getPageNo(footer: MessageEmbedFooter, summand: number) {
+        const pageNoString = footer.text.split(' ')[1];
+        const currentPageNo = pageNoString.split('/')[0]
+        const maxPageNo = pageNoString.split('/')[1]
+
+
+        return Math.max(
+            Math.min(
+                parseInt(currentPageNo) + summand,
+                parseInt(maxPageNo),
+            ),
+            1
+        );
     }
 
     getCodeBlockWith(text: string) {
