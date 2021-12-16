@@ -1,0 +1,30 @@
+enum Fonts {
+    "Star Wars" = "Star Wars",
+    "Sub-Zero" = "Sub-Zero",
+    "Weird" = "Weird",
+    "Univers" = "Univers",
+    "Speed" = "Speed",
+    "Puffy" = "Puffy",
+    "Nipples" = "Nipples",
+    "Larry 3D" = "Larry 3D",
+    "Isometric1" = "Isometric1",
+    "Impossible" = "Impossible",
+    "3D-ASCII" = "3D-ASCII",
+    "Whimsy" = "Whimsy",
+    "Wet Letter" = "Wet Letter",
+    "Twisted" = "Twisted",
+    "Train" = "Train",
+    "Tombstone" = "Tombstone",
+    "THIS" = "THIS",
+    "Small Keyboard" = "Small Keyboard",
+    "Rammstein" = "Rammstein",
+    "Pyramid" = "Pyramid",
+    "Puzzle" = "Puzzle",
+    "Pebbles" = "Pebbles",
+    "Moscow" = "Moscow",
+    "Katakana" = "Katakana",
+    "JS Stick Letters" = "JS Stick Letters",
+
+}
+
+export default Fonts
