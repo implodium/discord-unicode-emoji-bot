@@ -3,6 +3,7 @@ import {ButtonInteraction, CommandInteraction, MessageEmbedFooter} from "discord
 import figlet from 'figlet'
 import * as fs from "fs";
 import ListMessageBuilder from "../util/ListMessageBuilder.js";
+import PageList from "../model/PageList.js";
 
 
 enum Fonts {
@@ -37,8 +38,26 @@ enum Fonts {
 @SlashGroup('text')
 export default class TextCommand {
 
-    fontFileLocation = "/resources/fonts.txt"
-    fonts?: Promise<string>
+    private fontFileLocation = "/resources/fonts.txt"
+    private fonts?: Promise<string>
+    private pageSize = 25
+
+    @Once("ready")
+    async readFonts(): Promise<void> {
+        this.fonts = fs.promises.readFile(
+            `${process.cwd() + this.fontFileLocation}`,
+            'utf-8'
+        );
+    }
+
+    async resolveFonts() {
+        if (this.fonts) {
+            return await this.fonts
+        } else {
+            throw new Error('fonts not found. They may not have been initialized')
+        }
+    }
+
 
     @Slash('write', {description: 'sends text in ascii format'})
     async sendText(
@@ -72,91 +91,6 @@ export default class TextCommand {
         await interaction.reply(this.getCodeBlockWith(asciiText))
     }
 
-    @Slash('list-fonts')
-    async listFonts(interaction: CommandInteraction) {
-        if (this.fonts) {
-            const resolvedFonts = (await this.fonts).split('\n');
-            const listBuilder = new ListMessageBuilder(resolvedFonts, 1)
-            const options = listBuilder.build()
-            console.log(options)
-            await interaction.reply(options)
-        } else {
-            throw Error('fonts missing')
-        }
-    }
-
-    @ButtonComponent('next')
-    async next(interaction: ButtonInteraction) {
-        const footer = interaction.message.embeds[0].footer
-
-        if (footer && this.fonts) {
-            const pageNo = await TextCommand.getNextPage(footer)
-            const resolvedFonts = (await this.fonts).split('\n');
-
-
-            const builder = new ListMessageBuilder(
-                resolvedFonts,
-                pageNo
-            )
-
-            await interaction.update(builder.build())
-        } else {
-            throw new Error('last message or fonts not found')
-        }
-    }
-
-    @ButtonComponent('prev')
-    async prev(interaction: ButtonInteraction) {
-        const footer = interaction.message.embeds[0].footer
-
-        if (footer && this.fonts) {
-            const pageNo = await TextCommand.getPrevPage(footer)
-            const resolvedFonts = (await this.fonts).split('\n');
-
-            const builder = new ListMessageBuilder(
-                resolvedFonts,
-                pageNo
-            )
-
-            await interaction.update(builder.build())
-        } else {
-            throw new Error('last message or fonts not found')
-        }
-    }
-
-
-    private static async getNextPage(footer: MessageEmbedFooter) {
-        return TextCommand.getPageNo(footer, +1)
-    }
-
-    private static async getPrevPage(footer: MessageEmbedFooter) {
-        return TextCommand.getPageNo(footer, -1)
-    }
-
-    private static async getPageNo(footer: MessageEmbedFooter, summand: number) {
-        const pageNoString = footer.text.split(' ')[1];
-        const currentPageNo = pageNoString.split('/')[0]
-        const maxPageNo = pageNoString.split('/')[1]
-
-
-        return Math.max(
-            Math.min(
-                parseInt(currentPageNo) + summand,
-                parseInt(maxPageNo),
-            ),
-            1
-        );
-    }
-
-    getCodeBlockWith(text: string) {
-        let textBuilder = ''
-        textBuilder += '```\n'
-        textBuilder += text
-        textBuilder += '\n```'
-
-        return textBuilder
-    }
-
     async convertToAscii(text: string, font: string | undefined): Promise<string> {
         return new Promise((resolve, reject) => {
             const options: figlet.Options = this.getFigletOptions(font)
@@ -187,12 +121,60 @@ export default class TextCommand {
         }
     }
 
-    @Once("ready")
-    async readFonts(): Promise<void> {
-        this.fonts = fs.promises.readFile(
-            `${process.cwd() + this.fontFileLocation}`,
-            'utf-8'
-        );
+
+    getCodeBlockWith(text: string) {
+        let textBuilder = ''
+        textBuilder += '```\n'
+        textBuilder += text
+        textBuilder += '\n```'
+
+        return textBuilder
     }
 
+    @Slash('list-fonts')
+    async listFonts(interaction: CommandInteraction) {
+        const fonts = (await this.resolveFonts()).split('\n');
+        const pageList = new PageList(fonts, this.pageSize)
+        const messageBuilder = new ListMessageBuilder(pageList)
+
+        const options = messageBuilder.build()
+        await interaction.reply(options)
+    }
+
+    @ButtonComponent('next')
+    async next(interaction: ButtonInteraction) {
+        await this.changePage(interaction, +1)
+    }
+
+    @ButtonComponent('prev')
+    async prev(interaction: ButtonInteraction) {
+        await this.changePage(interaction, -1)
+    }
+
+    async changePage(interaction: ButtonInteraction, summand: number) {
+        const footer = interaction.message.embeds[0].footer as MessageEmbedFooter
+        const pageNo = TextCommand.getPageNoFrom(footer)
+        const fonts = (await this.resolveFonts()).split('\n')
+        const pageList = new PageList(fonts, this.pageSize, pageNo)
+
+        pageList.changePage(summand)
+
+        const builder = new ListMessageBuilder(
+            pageList,
+        )
+
+        await interaction.update(builder.build())
+    }
+
+    private static getPageNoFrom(footer?: MessageEmbedFooter): number {
+        if (footer) {
+            const pageNoString = footer.text.split(' ')[1];
+            const currentPageNoString = pageNoString
+                .split('/')[0]
+
+            return parseInt(currentPageNoString)
+        } else {
+            throw new Error('footer is undefined')
+        }
+    }
 }

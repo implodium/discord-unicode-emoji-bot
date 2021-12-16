@@ -1,11 +1,9 @@
 import {InteractionReplyOptions, MessageActionRow, MessageButton, MessageEmbed} from "discord.js";
+import PageList from "../model/PageList";
 
 export default class ListMessageBuilder {
 
-    private readonly pages: string[][] = []
-
-    constructor(private fonts: string[], private pageNo: number) {
-        this.pages = this.getPages();
+    constructor(private pageList: PageList) {
     }
 
     build(): InteractionReplyOptions {
@@ -19,19 +17,12 @@ export default class ListMessageBuilder {
     }
 
     private buildPage(): MessageEmbed {
-        const messageEmbed = new MessageEmbed()
+        const description = this.pageList.pageContent
+
+        return new MessageEmbed()
             .setTitle("Fonts")
-            .setFooter(`Page ${this.pageNo}/${this.pages.length - 1}`)
-
-        const fontPage = this.pages[this.pageNo];
-        let description = ''
-
-        for (const font of fontPage) {
-            description += font + '\n'
-        }
-
-        return messageEmbed
-            .setDescription(description);
+            .setDescription(description)
+            .setFooter(`Page ${this.pageList.pageNo}/${this.pageList.length - 1}`)
     }
 
 
@@ -50,24 +41,5 @@ export default class ListMessageBuilder {
 
         return new MessageActionRow()
             .addComponents(previousButton, nextButton)
-    }
-
-    private getPages(): string[][] {
-        let count = 0;
-        const pages: string[][] = []
-        console.log(this.fonts.length)
-
-        while (count < this.fonts.length - 1) {
-            const fontPage = this.fonts
-                .slice(
-                    count,
-                    Math.min(count + 25, this.fonts.length - 1)
-                )
-
-            pages.push(fontPage)
-            count += 25
-        }
-
-        return pages
     }
 }
