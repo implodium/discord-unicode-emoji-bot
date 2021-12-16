@@ -40,7 +40,7 @@ export default class TextCommand {
 
     private fontFileLocation = "/resources/fonts.txt"
     private fonts?: Promise<string>
-    private pageSize = 25
+    private pageSize = 50
 
     @Once("ready")
     async readFonts(): Promise<void> {

@@ -31,7 +31,7 @@ export default class PageList {
             .slice(
                 count,
                 Math.min(
-                    count + 25, this.elements.length - 1
+                    count + this.pageElementCount, this.elements.length - 1
                 )
             )
     }
