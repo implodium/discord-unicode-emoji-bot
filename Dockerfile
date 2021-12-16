@@ -12,7 +12,8 @@ RUN npm run build \
     && rm -rf node_modules \
     && npm install --production \
     && cp -r node_modules dist \
-    && cp -r package*.json dist
+    && cp -r package*.json dist \
+    && cp -r resources dist
 
 FROM node:16.13.1-alpine3.13 as run
 
